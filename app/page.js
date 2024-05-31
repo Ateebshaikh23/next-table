@@ -17,13 +17,19 @@ import {
   TextField,
   InputAdornment,
   Toolbar,
+  SwipeableDrawer,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import axios from "axios";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
+  const [open, setopen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -42,17 +48,50 @@ export default function Home() {
     setPage(0);
   };
 
+ const handleRowClick =( user)=>{
+  setSelectedUser(user)
+  setopen(true)
+ }
+
   return (
     <Container>
-      
       <TextField
-        
         placeholder="Enter Your Name"
         margin="normal"
         label="Search Here"
         className="px-3"
       />
-      <Toolbar/>
+      <Toolbar />
+      <SwipeableDrawer
+        anchor="right"
+        open={open}
+        onClose={() => setopen(false)}
+      >
+        {selectedUser && (
+          <List>
+            <Toolbar/>
+            <Toolbar/>
+            <Toolbar/>
+            <ListItem>
+              <ListItemText primary={`User Name: ${selectedUser.name}`} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary={`Email: ${selectedUser.email}`} />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary={`Phone: ${selectedUser.phone}`} />
+            </ListItem>
+            <ListItem>
+              <ListItemText
+                primary={`Company Name: ${selectedUser.company.name}`}
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemText primary={`Website Name: ${selectedUser.website}`} />
+            </ListItem>
+          </List>
+        )}
+      </SwipeableDrawer>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -71,7 +110,7 @@ export default function Home() {
             {users
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.id} onClick={() => handleRowClick(user)}>
                   <TableCell>
                     <Checkbox />
                   </TableCell>
