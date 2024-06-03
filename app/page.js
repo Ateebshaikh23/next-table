@@ -21,13 +21,14 @@ import {
   List,
   ListItem,
   ListItemText,
+  TableSortLabel,
 } from "@mui/material";
 import axios from "axios";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
-  const [open, setopen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -48,10 +49,10 @@ export default function Home() {
     setPage(0);
   };
 
- const handleRowClick =( user)=>{
-  setSelectedUser(user)
-  setopen(true)
- }
+  const handleRowClick = (user) => {
+    setSelectedUser(user);
+    setOpen(true);
+  };
 
   return (
     <Container>
@@ -65,13 +66,11 @@ export default function Home() {
       <SwipeableDrawer
         anchor="right"
         open={open}
-        onClose={() => setopen(false)}
+        onClose={() => setOpen(false)}
       >
         {selectedUser && (
           <List>
-            <Toolbar/>
-            <Toolbar/>
-            <Toolbar/>
+            <Toolbar />
             <ListItem>
               <ListItemText primary={`User Name: ${selectedUser.name}`} />
             </ListItem>
@@ -99,7 +98,7 @@ export default function Home() {
               <TableCell>
                 <Checkbox />
               </TableCell>
-              <TableCell>Name</TableCell>
+              <TableCell><TableSortLabel>Name</TableSortLabel> </TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Company</TableCell>
@@ -108,17 +107,17 @@ export default function Home() {
           </TableHead>
           <TableBody>
             {users
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
               .map((user) => (
-                <TableRow key={user.id} onClick={() => handleRowClick(user)}>
+                <TableRow key={user.id} >
                   <TableCell>
                     <Checkbox />
                   </TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>{user.company.name}</TableCell>
-                  <TableCell>{user.website}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>{user.name}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>{user.email}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>{user.phone}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>{user.company.name}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>{user.website}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -136,3 +135,4 @@ export default function Home() {
     </Container>
   );
 }
+
