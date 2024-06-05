@@ -31,6 +31,8 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("name");
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -53,6 +55,23 @@ export default function Home() {
     setSelectedUser(user);
     setOpen(true);
   };
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+  const sortComparator = (a, b, event) => {
+    if (a[orderBy] < b[orderBy]) {
+      return order === "asc" ? -1 : 1;
+    }
+    if (a[orderBy] > b[orderBy]) {
+      return order === "asc" ? 1 : -1;
+    }
+    return 0;
+  };
+
+  const userSort = [...users].sort(sortComparator);
 
   return (
     <Container>
@@ -98,26 +117,86 @@ export default function Home() {
               <TableCell>
                 <Checkbox />
               </TableCell>
-              <TableCell><TableSortLabel>Name</TableSortLabel> </TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Company</TableCell>
-              <TableCell>Website</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "name"}
+                  direction={orderBy === "name" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "name");
+                  }}
+                >
+                  Name
+                </TableSortLabel>{" "}
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "email"}
+                  direction={orderBy === "email" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "email");
+                  }}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "Phone"}
+                  direction={orderBy === "Phone" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "Phone");
+                  }}
+                >
+                  Phone
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "Company"}
+                  direction={orderBy === "Company" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "Company");
+                  }}
+                >
+                  Company
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "website"}
+                  direction={orderBy === "website" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "website");
+                  }}
+                >
+                  Website
+                </TableSortLabel>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users
+            {userSort
               .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
               .map((user) => (
-                <TableRow key={user.id} >
+                <TableRow key={user.id}>
                   <TableCell>
                     <Checkbox />
                   </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>{user.name}</TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>{user.email}</TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>{user.phone}</TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>{user.company.name}</TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>{user.website}</TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.name}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.email}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.phone}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.company.name}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.website}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -135,4 +214,3 @@ export default function Home() {
     </Container>
   );
 }
-
