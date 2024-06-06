@@ -11,11 +11,8 @@ import {
   TableRow,
   TablePagination,
   Paper,
-  Typography,
   Checkbox,
-  Box,
   TextField,
-  InputAdornment,
   Toolbar,
   SwipeableDrawer,
   List,
@@ -33,6 +30,7 @@ export default function Home() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("name");
+  const [checked, setChecked] = useState([]);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -73,6 +71,36 @@ export default function Home() {
 
   const userSort = [...users].sort(sortComparator);
 
+  const handleCheck = (e) => {
+    if (e.target.checked) {
+      const selected = users.map((user) => user.id);
+      setChecked(selected);
+      return;
+    }
+    setChecked([]);
+  };
+
+  const handleCheckBox = (event, id) => {
+    const selectedIndex = checked.indexOf(id);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(checked, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(checked.slice(1));
+    } else if (selectedIndex === checked.length - 1) {
+      newSelected = newSelected.concat(checked.slice(0, selectedIndex));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        checked.slice(0, selectedIndex),
+        checked.slice(selectedIndex + 1)
+      );
+    }
+    setChecked(newSelected);
+  };
+
+  const isSelected = (id) => checked.indexOf(id) !== -1;
+
   return (
     <Container>
       <TextField
@@ -83,9 +111,12 @@ export default function Home() {
       />
       <Toolbar />
       <SwipeableDrawer
+        className="w-2/4 "
         anchor="right"
         open={open}
         onClose={() => setOpen(false)}
+        sx={{ width: 600, justifyContent: "center" }}
+        PaperProps={{ sx: { width: 600, justifyContent: "center" } }}
       >
         {selectedUser && (
           <List>
@@ -115,7 +146,13 @@ export default function Home() {
           <TableHead>
             <TableRow>
               <TableCell>
-                <Checkbox />
+                <Checkbox
+                  indeterminate={
+                    checked.length > 0 && checked.length < users.length
+                  }
+                  checked={users.length > 0 && checked.length === users.length}
+                  onChange={handleCheck}
+                />
               </TableCell>
               <TableCell>
                 <TableSortLabel
@@ -126,7 +163,7 @@ export default function Home() {
                   }}
                 >
                   Name
-                </TableSortLabel>{" "}
+                </TableSortLabel>
               </TableCell>
               <TableCell>
                 <TableSortLabel
@@ -177,28 +214,38 @@ export default function Home() {
           <TableBody>
             {userSort
               .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
-              .map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>
-                    {user.name}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>
-                    {user.email}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>
-                    {user.phone}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>
-                    {user.company.name}
-                  </TableCell>
-                  <TableCell onClick={() => handleRowClick(user)}>
-                    {user.website}
-                  </TableCell>
-                </TableRow>
-              ))}
+              .map((user) => {
+                const isItemSelected = isSelected(user.id);
+                return (
+                  <TableRow
+                    key={user.id}
+                    checked={isItemSelected}
+                    // onClick={(event) => handleRowClick(user)}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={isItemSelected}
+                        onChange={(event) => handleCheckBox(event, user.id)}
+                      />
+                    </TableCell>
+                    <TableCell onClick={() => handleRowClick(user)}>
+                      {user.name}
+                    </TableCell>
+                    <TableCell onClick={() => handleRowClick(user)}>
+                      {user.email}
+                    </TableCell>
+                    <TableCell onClick={() => handleRowClick(user)}>
+                      {user.phone}
+                    </TableCell>
+                    <TableCell onClick={() => handleRowClick(user)}>
+                      {user.company.name}
+                    </TableCell>
+                    <TableCell onClick={() => handleRowClick(user)}>
+                      {user.website}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
         <TablePagination
