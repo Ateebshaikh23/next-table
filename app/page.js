@@ -19,23 +19,36 @@ import {
   ListItem,
   ListItemText,
   TableSortLabel,
+  Button,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedUser, setSelectedUser] = useState(null);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("name");
   const [checked, setChecked] = useState([]);
+  const [filterFn, setFilterFn] = useState({
+    fn: (users) => users,
+  });
 
   useEffect(() => {
     const loadUsers = async () => {
-      const res = await axios.get("https://jsonplaceholder.typicode.com/users");
-      setUsers(res.data);
+      try {
+        const res = await axios.get(
+          "https://jsonplaceholder.typicode.com/comments"
+        );
+
+        localStorage.setItem("users", JSON.stringify(res.data));
+        setUsers(res.data);
+      } catch (error) {
+        console.error("Error loading users:", error);
+      }
     };
     loadUsers();
   }, []);
@@ -59,7 +72,11 @@ export default function Home() {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
-  const sortComparator = (a, b, event) => {
+
+  const sortComparator = (a, b) => {
+    if (orderBy === "id") {
+      return order === "asc" ? a.id - b.id : b.id - a.id;
+    }
     if (a[orderBy] < b[orderBy]) {
       return order === "asc" ? -1 : 1;
     }
@@ -68,8 +85,6 @@ export default function Home() {
     }
     return 0;
   };
-
-  const userSort = [...users].sort(sortComparator);
 
   const handleCheck = (e) => {
     if (e.target.checked) {
@@ -101,13 +116,40 @@ export default function Home() {
 
   const isSelected = (id) => checked.indexOf(id) !== -1;
 
+  const handleSearch = (e) => {
+    let target = e.target;
+    setFilterFn({
+      fn: (users) => {
+        if (target.value === "") return users;
+        else
+          return users.filter((x) =>
+            x.name.toLowerCase().includes(target.value.toLowerCase())
+          );
+      },
+    });
+  };
+
+  const filteredUsers = filterFn.fn(users);
+  const sortedUsers = filteredUsers.sort(sortComparator);
+  const paginatedUsers = sortedUsers.slice(
+    page * rowsPerPage,
+    (page + 1) * rowsPerPage
+  );
+
+  const handleDelete = (userId) => {
+    const updateUsers = users.filter((user) => user.id !== userId);
+    setUsers(updateUsers);
+    localStorage.setItem("users", JSON.stringify(updateUsers));
+  };
+
   return (
     <Container>
       <TextField
-        placeholder="Enter Your Name"
+        placeholder="Enter The Name"
         margin="normal"
         label="Search Here"
         className="px-3"
+        onChange={handleSearch}
       />
       <Toolbar />
       <SwipeableDrawer
@@ -122,21 +164,29 @@ export default function Home() {
           <List>
             <Toolbar />
             <ListItem>
+              <ListItemText primary={`id: ${selectedUser.id}`} />
+            </ListItem>
+            <ListItem>
               <ListItemText primary={`User Name: ${selectedUser.name}`} />
             </ListItem>
             <ListItem>
               <ListItemText primary={`Email: ${selectedUser.email}`} />
             </ListItem>
+
             <ListItem>
-              <ListItemText primary={`Phone: ${selectedUser.phone}`} />
+              <ListItemText primary={`body Name: ${selectedUser.body}`} />
             </ListItem>
-            <ListItem>
-              <ListItemText
-                primary={`Company Name: ${selectedUser.company.name}`}
-              />
-            </ListItem>
-            <ListItem>
-              <ListItemText primary={`Website Name: ${selectedUser.website}`} />
+            <ListItem style={{ paddingTop: "50px" }}>
+              <Button
+                variant="contained"
+                style={{ backgroundColor: "red" }}
+                onClick={() => {
+                  handleDelete(selectedUser.id);
+                  setOpen(false);
+                }}
+              >
+                Delete
+              </Button>
             </ListItem>
           </List>
         )}
@@ -153,6 +203,17 @@ export default function Home() {
                   checked={users.length > 0 && checked.length === users.length}
                   onChange={handleCheck}
                 />
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "id"}
+                  direction={orderBy === "id" ? order : "asc"}
+                  onClick={(event) => {
+                    handleRequestSort(event, "id");
+                  }}
+                >
+                  ID
+                </TableSortLabel>
               </TableCell>
               <TableCell>
                 <TableSortLabel
@@ -173,85 +234,74 @@ export default function Home() {
                     handleRequestSort(event, "email");
                   }}
                 >
-                  Email
+                  E-mail
                 </TableSortLabel>
               </TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === "Phone"}
-                  direction={orderBy === "Phone" ? order : "asc"}
+                  active={orderBy === "body"}
+                  direction={orderBy === "body" ? order : "asc"}
                   onClick={(event) => {
-                    handleRequestSort(event, "Phone");
+                    handleRequestSort(event, "body");
                   }}
                 >
-                  Phone
+                  Body
                 </TableSortLabel>
               </TableCell>
               <TableCell>
-                <TableSortLabel
-                  active={orderBy === "Company"}
-                  direction={orderBy === "Company" ? order : "asc"}
-                  onClick={(event) => {
-                    handleRequestSort(event, "Company");
-                  }}
+                <Button
+                  color="warning"
+                  variant="outlined"
+                  endIcon={<DeleteIcon />}
                 >
-                  Company
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === "website"}
-                  direction={orderBy === "website" ? order : "asc"}
-                  onClick={(event) => {
-                    handleRequestSort(event, "website");
-                  }}
-                >
-                  Website
-                </TableSortLabel>
+                  delete
+                </Button>
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {userSort
-              .slice(page * rowsPerPage, (page + 1) * rowsPerPage)
-              .map((user) => {
-                const isItemSelected = isSelected(user.id);
-                return (
-                  <TableRow
-                    key={user.id}
-                    checked={isItemSelected}
-                    // onClick={(event) => handleRowClick(user)}
-                  >
-                    <TableCell>
-                      <Checkbox
-                        checked={isItemSelected}
-                        onChange={(event) => handleCheckBox(event, user.id)}
-                      />
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(user)}>
-                      {user.name}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(user)}>
-                      {user.email}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(user)}>
-                      {user.phone}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(user)}>
-                      {user.company.name}
-                    </TableCell>
-                    <TableCell onClick={() => handleRowClick(user)}>
-                      {user.website}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+            {paginatedUsers.map((user) => {
+              const isItemSelected = isSelected(user.id);
+              return (
+                <TableRow key={user.id} checked={isItemSelected}>
+                  <TableCell>
+                    <Checkbox
+                      checked={isItemSelected}
+                      onChange={(event) => handleCheckBox(event, user.id)}
+                    />
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.id}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.name}
+                  </TableCell>
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.email}
+                  </TableCell>
+
+                  <TableCell onClick={() => handleRowClick(user)}>
+                    {user.body}
+                  </TableCell>
+
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      style={{ backgroundColor: "red" }}
+                      onClick={() => handleDelete(user.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
         <TablePagination
-          rowsPerPageOptions={[5, 7, 10, 25, 50]}
+          rowsPerPageOptions={[10, 25, 50, 75]}
           component="div"
-          count={users.length}
+          count={filteredUsers.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handlePageChange}
