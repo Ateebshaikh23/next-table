@@ -20,6 +20,8 @@
 //   ListItemText,
 //   TableSortLabel,
 //   Button,
+//   CircularProgress,
+//   Typography,
 // } from "@mui/material";
 // import DeleteIcon from "@mui/icons-material/Delete";
 // import axios from "axios";
@@ -36,6 +38,8 @@
 //   const [filterFn, setFilterFn] = useState({
 //     fn: (users) => users,
 //   });
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
 
 //   useEffect(() => {
 //     const loadUsers = async () => {
@@ -43,11 +47,12 @@
 //         const res = await axios.get(
 //           "https://jsonplaceholder.typicode.com/comments"
 //         );
-
 //         localStorage.setItem("users", JSON.stringify(res.data));
 //         setUsers(res.data);
+//         setLoading(false);
 //       } catch (error) {
-//         console.error("Error loading users:", error);
+//         setError("Error loading users.");
+//         setLoading(false);
 //       }
 //     };
 //     loadUsers();
@@ -142,6 +147,29 @@
 //     localStorage.setItem("users", JSON.stringify(updateUsers));
 //   };
 
+//   const handleBulkDelete = () => {
+//     const updateUsers = users.filter((user) => !checked.includes(user.id));
+//     setUsers(updateUsers);
+//     setChecked([]);
+//     localStorage.setItem("users", JSON.stringify(updateUsers));
+//   };
+
+//   if (loading) {
+//     return (
+//       <Container>
+//         <CircularProgress />
+//       </Container>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <Container>
+//         <Typography color="error">{error}</Typography>
+//       </Container>
+//     );
+//   }
+
 //   return (
 //     <Container>
 //       <TextField
@@ -150,6 +178,15 @@
 //         label="Search Here"
 //         className="px-3"
 //         onChange={handleSearch}
+//         helperText="Enter The Name Here"
+//       />
+//       <TextField
+//         placeholder="Enter The Name"
+//         margin="normal"
+//         label="Search Here"
+//         className="px-3"
+//         onChange={handleSearch}
+//         helperText="Enter The Name Here"
 //       />
 //       <Toolbar />
 //       <SwipeableDrawer
@@ -174,7 +211,7 @@
 //             </ListItem>
 
 //             <ListItem>
-//               <ListItemText primary={`body Name: ${selectedUser.body}`} />
+//               <ListItemText primary={`Body: ${selectedUser.body}`} />
 //             </ListItem>
 //             <ListItem style={{ paddingTop: "50px" }}>
 //               <Button
@@ -253,8 +290,10 @@
 //                   color="warning"
 //                   variant="outlined"
 //                   endIcon={<DeleteIcon />}
+//                   onClick={handleBulkDelete}
+//                   disabled={checked.length === 0}
 //                 >
-//                   delete
+//                   Delete
 //                 </Button>
 //               </TableCell>
 //             </TableRow>
@@ -263,7 +302,7 @@
 //             {paginatedUsers.map((user) => {
 //               const isItemSelected = isSelected(user.id);
 //               return (
-//                 <TableRow key={user.id} checked={isItemSelected}>
+//                 <TableRow key={user.id} selected={isItemSelected}>
 //                   <TableCell>
 //                     <Checkbox
 //                       checked={isItemSelected}
@@ -279,15 +318,13 @@
 //                   <TableCell onClick={() => handleRowClick(user)}>
 //                     {user.email}
 //                   </TableCell>
-
 //                   <TableCell onClick={() => handleRowClick(user)}>
 //                     {user.body}
 //                   </TableCell>
-
 //                   <TableCell>
 //                     <Button
-//                       variant="contained"
-//                       style={{ backgroundColor: "red" }}
+//                       color="secondary"
+//                       variant="outlined"
 //                       onClick={() => handleDelete(user.id)}
 //                     >
 //                       Delete
@@ -298,16 +335,16 @@
 //             })}
 //           </TableBody>
 //         </Table>
-//         <TablePagination
-//           rowsPerPageOptions={[5,10, 25, 50, 75]}
-//           component="div"
-//           count={filteredUsers.length}
-//           rowsPerPage={rowsPerPage}
-//           page={page}
-//           onPageChange={handlePageChange}
-//           onRowsPerPageChange={handleRowsPerPageChange}
-//         />
 //       </TableContainer>
+//       <TablePagination
+//         rowsPerPageOptions={[5, 10, 25]}
+//         component="div"
+//         count={filteredUsers.length}
+//         rowsPerPage={rowsPerPage}
+//         page={page}
+//         onPageChange={handlePageChange}
+//         onRowsPerPageChange={handleRowsPerPageChange}
+//       />
 //     </Container>
 //   );
 // }
@@ -348,9 +385,8 @@ export default function Home() {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("name");
   const [checked, setChecked] = useState([]);
-  const [filterFn, setFilterFn] = useState({
-    fn: (users) => users,
-  });
+  const [nameFilter, setNameFilter] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -434,20 +470,21 @@ export default function Home() {
 
   const isSelected = (id) => checked.indexOf(id) !== -1;
 
-  const handleSearch = (e) => {
-    let target = e.target;
-    setFilterFn({
-      fn: (users) => {
-        if (target.value === "") return users;
-        else
-          return users.filter((x) =>
-            x.name.toLowerCase().includes(target.value.toLowerCase())
-          );
-      },
-    });
+  const handleNameSearch = (e) => {
+    setNameFilter(e.target.value.toLowerCase());
   };
 
-  const filteredUsers = filterFn.fn(users);
+  const handleEmailSearch = (e) => {
+    setEmailFilter(e.target.value.toLowerCase());
+  };
+
+  const filteredUsers = users.filter((user) => {
+    return (
+      user.name.toLowerCase().includes(nameFilter) &&
+      user.email.toLowerCase().includes(emailFilter)
+    );
+  });
+
   const sortedUsers = filteredUsers.sort(sortComparator);
   const paginatedUsers = sortedUsers.slice(
     page * rowsPerPage,
@@ -486,11 +523,20 @@ export default function Home() {
   return (
     <Container>
       <TextField
-        placeholder="Enter The Name"
+        placeholder="Search by Name"
         margin="normal"
-        label="Search Here"
+        label="Search by Name"
         className="px-3"
-        onChange={handleSearch}
+        onChange={handleNameSearch}
+        helperText="Enter the Name"
+      />
+      <TextField
+        placeholder="Search by Email"
+        margin="normal"
+        label="Search by Email"
+        className="px-3"
+        onChange={handleEmailSearch}
+        helperText="Enter the Email"
       />
       <Toolbar />
       <SwipeableDrawer
@@ -505,7 +551,7 @@ export default function Home() {
           <List>
             <Toolbar />
             <ListItem>
-              <ListItemText primary={`id: ${selectedUser.id}`} />
+              <ListItemText primary={`ID: ${selectedUser.id}`} />
             </ListItem>
             <ListItem>
               <ListItemText primary={`User Name: ${selectedUser.name}`} />
@@ -513,7 +559,6 @@ export default function Home() {
             <ListItem>
               <ListItemText primary={`Email: ${selectedUser.email}`} />
             </ListItem>
-
             <ListItem>
               <ListItemText primary={`Body: ${selectedUser.body}`} />
             </ListItem>
