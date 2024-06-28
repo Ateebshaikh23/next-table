@@ -1,0 +1,130 @@
+.wid-res {
+  width: 50%;
+}
+/* Styles for desktops */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .inp-Text {
+    gap: 12px;
+    display: flex;
+    width: 60%;
+  }
+}
+
+/* Styles for tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .responsive-text {
+    font-size: 10px;
+    padding: 1px;
+  }
+  .btn-res {
+    padding: 0;
+    font-size: 12px;
+    justify-content: center;
+    margin-left: 12px;
+  }
+  .wid-res {
+    width: 50%;
+  }
+  .inp-Text {
+    gap: 12px;
+    display: flex;
+    width: 60%;
+  }
+  .padding-res {
+    padding: 10px;
+  }
+}
+
+/* Styles for phones X Tablet */
+@media (min-width: 575.98px) and (max-width: 767px) {
+  .responsive-text {
+    font-size: 10px;
+    padding: 1px;
+  }
+  .btn-res {
+    padding: 0;
+    font-size: 12px;
+    justify-content: center;
+    margin-left: 12px;
+  }
+  .wid-res {
+    width: 50%;
+  }
+  .inp-Text {
+    gap: 12px;
+    display: flex;
+    width: 60%;
+  }
+  .padding-res {
+    padding: 0;
+  }
+  .bulk-delete {
+    font-size: 12px;
+    padding: 5px;
+  }
+  .drawer-font {
+    font-size: 9px;
+  }
+}
+/* Styles for phones */
+@media (max-width: 576.98px) {
+  .responsive-text {
+    font-size: 8px;
+    padding: 1px;
+  }
+  .btn-res {
+    padding: 0;
+    font-size: 12px;
+    justify-content: center;
+    margin-left: 12px;
+  }
+  .wid-res {
+    width: 50%;
+  }
+  .inp-Text {
+    gap: 12px;
+    display: flex;
+    width: 60%;
+  }
+  .padding-res {
+    padding: 0;
+  }
+  .bulk-delete {
+    font-size: 12px;
+    padding: 5px;
+  }
+  .drawer-font {
+    font-size: 9px;
+  }
+}
+
+/* Styles for phones */
+@media (max-width: 344.98px) {
+  .responsive-text {
+    font-size: 8px;
+    padding: 1px;
+  }
+  .btn-res {
+    padding: 0;
+    font-size: 12px;
+    justify-content: center;
+    margin-left: 12px;
+  }
+  .wid-res {
+    width: 50%;
+  }
+  .inp-Text {
+    width: 100%;
+    flex-direction: column;
+  }
+  .padding-res {
+    padding: 0;
+  }
+  .bulk-delete {
+    font-size: 12px;
+    padding: 5px;
+  }
+  .drawer-font {
+    font-size: 9px !important;
+  }
+}
