@@ -22,10 +22,13 @@ import {
   Button,
   CircularProgress,
   Typography,
+  Box,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import "./style/style.css";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+// import "./style/style.css";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
@@ -40,6 +43,8 @@ export default function Home() {
   const [emailFilter, setEmailFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const theme = createTheme();
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -173,7 +178,23 @@ export default function Home() {
 
   return (
     <Container>
-      <div className="inp-Text">
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          [theme.breakpoints.between("md", "lg")]: {
+            // backgroundColor: "blue",
+            gap: "20px",
+            display: "flex",
+          },
+          [theme.breakpoints.down("sm")]: {
+            // backgroundColor:"black"
+            display: "flex",
+            flexDirection: "column",
+            gap: "0",
+          },
+        }}
+      >
         <TextField
           placeholder="Search by Name"
           margin="normal"
@@ -181,6 +202,11 @@ export default function Home() {
           className="px-3 "
           onChange={handleNameSearch}
           helperText="Enter the Name"
+          sx={{
+            [theme.breakpoints.down("sm")]: {
+              fontSize: "12px",
+            },
+          }}
         />
 
         <TextField
@@ -190,35 +216,36 @@ export default function Home() {
           className="px-3"
           onChange={handleEmailSearch}
           helperText="Enter the Email"
+          sx={{
+            [theme.breakpoints.down("sm")]: {
+              fontSize: "12px",
+            },
+          }}
         />
-      </div>
+      </Box>
       <Toolbar />
       <SwipeableDrawer
-         className="wid-res"
         anchor="right"
         open={open}
         onClose={() => setOpen(false)}
-        // sx={{ width: 200, justifyContent: "center" }}
-        // PaperProps={{ sx: { width: 200, justifyContent: "center" } }}
-        PaperProps={{ className: 'wid-res' }}
-        sx={{className:"font-res" }}
+        PaperProps={{ sx: { width: "50%" } }}
       >
         {selectedUser && (
           <List>
             <Toolbar />
-            <ListItem >
-              <ListItemText primary={`ID: ${selectedUser.id}`} className="drawer-font"/>
+            <ListItem>
+              <ListItemText primary={`ID: ${selectedUser.id}`} />
             </ListItem>
-            <ListItem >
-              <ListItemText primary={`User Name: ${selectedUser.name}`} className="drawer-font"/>
+            <ListItem>
+              <ListItemText primary={`User Name: ${selectedUser.name}`} />
             </ListItem>
-            <ListItem >
-              <ListItemText primary={`Email: ${selectedUser.email}`} className="drawer-font"/>
+            <ListItem>
+              <ListItemText primary={`Email: ${selectedUser.email}`} />
             </ListItem>
-            <ListItem >
-              <ListItemText primary={`Body: ${selectedUser.body}`} className="drawer-font"/>
+            <ListItem>
+              <ListItemText primary={`Body: ${selectedUser.body}`} />
             </ListItem>
-            <ListItem >
+            <ListItem>
               <Button
                 variant="contained"
                 style={{ backgroundColor: "red" }}
@@ -235,9 +262,16 @@ export default function Home() {
       </SwipeableDrawer>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead >
+          <TableHead>
             <TableRow>
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                }}
+              >
                 <Checkbox
                   indeterminate={
                     checked.length > 0 && checked.length < users.length
@@ -247,7 +281,17 @@ export default function Home() {
                 />
               </TableCell>
 
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "8px",
+                  },
+                }}
+              >
                 <TableSortLabel
                   active={orderBy === "id"}
                   direction={orderBy === "id" ? order : "asc"}
@@ -259,7 +303,17 @@ export default function Home() {
                 </TableSortLabel>
               </TableCell>
 
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "8px",
+                  },
+                }}
+              >
                 <TableSortLabel
                   active={orderBy === "name"}
                   direction={orderBy === "name" ? order : "asc"}
@@ -271,7 +325,17 @@ export default function Home() {
                 </TableSortLabel>
               </TableCell>
 
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "8px",
+                  },
+                }}
+              >
                 <TableSortLabel
                   active={orderBy === "email"}
                   direction={orderBy === "email" ? order : "asc"}
@@ -283,7 +347,17 @@ export default function Home() {
                 </TableSortLabel>
               </TableCell>
 
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "8px",
+                  },
+                }}
+              >
                 <TableSortLabel
                   active={orderBy === "body"}
                   direction={orderBy === "body" ? order : "asc"}
@@ -295,9 +369,26 @@ export default function Home() {
                 </TableSortLabel>
               </TableCell>
 
-              <TableCell className="padding-res">
+              <TableCell
+                sx={{
+                  [theme.breakpoints.down("md")]: {
+                    padding: "0px",
+                    // backgroundColor:"black"
+                  },
+                  [theme.breakpoints.down("sm")]: {
+                    // backgroundColor:"black"
+                  },
+                }}
+              >
                 <Button
-                className="bulk-delete"
+                  sx={{
+                    [theme.breakpoints.down("sm")]: {
+                      padding: "2px 4px",
+                      marginRight: "3px",
+                      fontSize: "8px",
+                    },
+                  }}
+                  className="bulk-delete"
                   color="warning"
                   variant="outlined"
                   endIcon={<DeleteIcon />}
@@ -314,7 +405,20 @@ export default function Home() {
               const isItemSelected = isSelected(user.id);
               return (
                 <TableRow key={user.id} selected={isItemSelected}>
-                  <TableCell className="responsive-text">
+                  <TableCell
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        fontSize: "10px",
+                        padding: "5px",
+                       
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      
+                      },
+                    }}
+                  >
                     <Checkbox
                       checked={isItemSelected}
                       onChange={(event) => handleCheckBox(event, user.id)}
@@ -322,34 +426,91 @@ export default function Home() {
                   </TableCell>
                   <TableCell
                     onClick={() => handleRowClick(user)}
-                    className="responsive-text"
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        fontSize: "10px",
+                        padding: "5px",
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      },
+                    }}
                   >
                     {user.id}
                   </TableCell>
                   <TableCell
                     onClick={() => handleRowClick(user)}
-                    className="responsive-text"
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        fontSize: "10px",
+                        padding: "5px",
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      },
+                    }}
                   >
                     {user.name}
                   </TableCell>
                   <TableCell
                     onClick={() => handleRowClick(user)}
-                    className="responsive-text"
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        fontSize: "10px",
+                        padding: "5px",
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      },
+                    }}
                   >
                     {user.email}
                   </TableCell>
                   <TableCell
                     onClick={() => handleRowClick(user)}
-                    className="responsive-text"
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        fontSize: "10px",
+                        padding: "5px",
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      },
+                    }}
                   >
                     {user.body}
                   </TableCell>
-                  <TableCell className="padding-res">
+                  <TableCell
+                    sx={{
+                      [theme.breakpoints.between("sm", "md")]: {
+                        padding: "5px",
+                        fontSize: "10px",
+                      },
+                      [theme.breakpoints.down("sm")]: {
+                        fontSize: "8px",
+                        padding: "1px",
+                      },
+                    }}
+                  >
                     <Button
-                      className="btn-res padding-res"
                       color="secondary"
                       variant="outlined"
                       onClick={() => handleDelete(user.id)}
+                      sx={{
+                        [theme.breakpoints.between("sm", "md")]: {
+                          padding: "2px 11px",
+                          fontSize: "12px",
+                          // backgroundColor:"black"
+                        },
+                        [theme.breakpoints.down("sm")]: {
+                          fontSize: "8px",
+                          paddingLeft: "5px",
+                        },
+                      }}
                     >
                       Delete
                     </Button>
