@@ -26,9 +26,8 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
-// import "./style/style.css";
+import { createTheme } from "@mui/material/styles";
+import { z } from "zod";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
@@ -52,8 +51,9 @@ export default function Home() {
         const res = await axios.get(
           "https://jsonplaceholder.typicode.com/comments"
         );
-        localStorage.setItem("users", JSON.stringify(res.data));
-        setUsers(res.data);
+        const validData = res.data.map((comment) => scheme.parse(comment));
+        localStorage.setItem("users", JSON.stringify(validData));
+        setUsers(validData);
         setLoading(false);
       } catch (error) {
         setError("Error loading users.");
@@ -62,6 +62,14 @@ export default function Home() {
     };
     loadUsers();
   }, []);
+
+  // Validation part
+  const scheme = z.object({
+    id: z.number(),
+    name: z.string(),
+    email: z.string().email(),
+    body: z.string(),
+  });
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -228,13 +236,27 @@ export default function Home() {
         anchor="right"
         open={open}
         onClose={() => setOpen(false)}
-        PaperProps={{ sx: { width: "50%" } }}
+        PaperProps={{
+          sx: { width: "50%" },
+        }}
       >
         {selectedUser && (
           <List>
             <Toolbar />
             <ListItem>
-              <ListItemText primary={`ID: ${selectedUser.id}`} />
+              <ListItemText
+                // sx={{
+                //   [theme.breakpoints.down("sm")]: {
+                //     backgroundColor: "red",
+                //     fontSize:"9px"
+                //   },
+                // }}
+                sx={{
+                  fontSize: { xs: "9px", sm: "inherit" },
+                  backgroundColor: { xs: "red", sm: "inherit" },
+                }}
+                primary={`ID: ${selectedUser.id}`}
+              />
             </ListItem>
             <ListItem>
               <ListItemText primary={`User Name: ${selectedUser.name}`} />
@@ -243,7 +265,15 @@ export default function Home() {
               <ListItemText primary={`Email: ${selectedUser.email}`} />
             </ListItem>
             <ListItem>
-              <ListItemText primary={`Body: ${selectedUser.body}`} />
+              <ListItemText
+                primary={`Body: ${selectedUser.body}`}
+                sx={{
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "10px",
+                    backgroundColor: "lightblue",
+                  },
+                }}
+              />
             </ListItem>
             <ListItem>
               <Button
@@ -268,7 +298,6 @@ export default function Home() {
                 sx={{
                   [theme.breakpoints.down("md")]: {
                     padding: "0px",
-                    // backgroundColor:"black"
                   },
                 }}
               >
@@ -410,12 +439,10 @@ export default function Home() {
                       [theme.breakpoints.between("sm", "md")]: {
                         fontSize: "10px",
                         padding: "5px",
-                       
                       },
                       [theme.breakpoints.down("sm")]: {
                         fontSize: "8px",
                         padding: "1px",
-                      
                       },
                     }}
                   >
